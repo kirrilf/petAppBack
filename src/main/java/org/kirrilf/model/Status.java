@@ -1,4 +1,5 @@
 package org.kirrilf.model;
 
-public class Status {
+public enum Status {
+    ACTIVE, NOT_ACTIVE, DELETED
 }

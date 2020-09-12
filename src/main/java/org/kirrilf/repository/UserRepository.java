@@ -1,4 +1,8 @@
 package org.kirrilf.repository;
 
-public class UserRepository {
+import org.kirrilf.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository  extends JpaRepository<User, Long> {
+    User findByUsername(String name);
 }
