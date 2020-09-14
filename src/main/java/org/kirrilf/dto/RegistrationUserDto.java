@@ -1,9 +1,11 @@
 package org.kirrilf.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.kirrilf.model.User;
 
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegistrationUserDto {
     private String username;
     private String firstName;

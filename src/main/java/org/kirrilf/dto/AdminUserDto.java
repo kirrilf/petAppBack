@@ -1,8 +1,10 @@
 package org.kirrilf.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AdminUserDto {
     private Long id;
     private String username;

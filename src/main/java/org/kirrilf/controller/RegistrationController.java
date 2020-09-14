@@ -18,7 +18,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/registration")
 public class RegistrationController {
-    private UserService userService;
+
+    private final UserService userService;
 
     @Autowired
     public RegistrationController(UserService userService) {
@@ -26,7 +27,7 @@ public class RegistrationController {
     }
 
     @PostMapping
-    public ResponseEntity registration(@RequestBody RegistrationUserDto userRegistrationDto){
+    public ResponseEntity<Map<Object, Object>> registration(@RequestBody RegistrationUserDto userRegistrationDto){
         User user = userRegistrationDto.toUser();
 
         Map<Object, Object> response = new HashMap<>();
@@ -34,15 +35,13 @@ public class RegistrationController {
         User registerUser = userService.register(user);
 
         if(registerUser == null){
-
-            return new ResponseEntity<>("User with this username or email already exist", HttpStatus.I_AM_A_TEAPOT);
+            response.put("message", "User with this username or email already exist");
+            return new ResponseEntity<>(response, HttpStatus.I_AM_A_TEAPOT);
         }
         else {
             UserDto registerUserDto = UserDto.fromUser(registerUser);
-
             response.put("register User", registerUserDto);
-
-            return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
 

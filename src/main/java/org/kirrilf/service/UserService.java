@@ -15,4 +15,6 @@ public interface UserService {
     User findById(Long id);
 
     boolean delete(Long id);
+
+    String getToken(User user);
 }

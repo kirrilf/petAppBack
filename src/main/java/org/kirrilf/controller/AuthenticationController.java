@@ -5,6 +5,7 @@ import org.kirrilf.model.User;
 import org.kirrilf.security.jwt.JwtTokenProvider;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,24 +21,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api/auth/")
+@RequestMapping(value = "/api/auth")
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
     private final UserService userService;
 
     @Autowired
-    public AuthenticationController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserService userService) {
+    public AuthenticationController(AuthenticationManager authenticationManager, UserService userService) {
         this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
     }
 
-    @PostMapping("login")
-    public ResponseEntity login(@RequestBody AuthenticationUserDto requestDto) {
+    @PostMapping("/login")
+    public ResponseEntity<Map<Object, Object>> login(@RequestBody AuthenticationUserDto requestDto) {
         try {
             String username = requestDto.getUsername();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
@@ -47,13 +45,13 @@ public class AuthenticationController {
                 throw new UsernameNotFoundException("User with username: " + username + " not found");
             }
 
-            String token = jwtTokenProvider.createToken(username, user.getRoles());
+            String token = userService.getToken(user);
 
             Map<Object, Object> response = new HashMap<>();
             response.put("username", username);
             response.put("token", token);
 
-            return ResponseEntity.ok(response);
+            return  new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username or password");
         }

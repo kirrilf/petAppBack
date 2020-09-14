@@ -19,25 +19,15 @@ public class UserController {
 
     private final UserService userService;
 
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @GetMapping(value = "{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable(name = "id") Long id, HttpServletRequest request){
         User user = userService.findById(id);
-
-        String token = jwtTokenProvider.resolveToken(request);
-        String username = jwtTokenProvider.getUsername(token);
-        User userInToken = userService.findByUsername(username);
-
-        if(!userInToken.equals(user)){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
 
         if(user == null){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -5,6 +5,7 @@ import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
 import org.kirrilf.repository.RoleRepository;
 import org.kirrilf.repository.UserRepository;
+import org.kirrilf.security.jwt.JwtTokenProvider;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,12 +22,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -42,8 +45,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdated(new Date());
 
         try {
-            User registeredUser = userRepository.save(user);
-            return registeredUser;
+            return userRepository.save(user);
         }catch (DataIntegrityViolationException e){
             e.printStackTrace();
         }
@@ -53,25 +55,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAll() {
-        List<User> result = userRepository.findAll();
-        return result;
+        return userRepository.findAll();
     }
 
     @Override
     public User findByUsername(String username) {
-        User result = userRepository.findByUsername(username);
-        return result;
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public User findById(Long id) {
-        User result = userRepository.findById(id).orElse(null);
-
-        if (result == null) {
-            return null;
-        }
-
-        return result;
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -84,5 +78,10 @@ public class UserServiceImpl implements UserService {
         result.setUpdated(new Date());
         userRepository.save(result);
         return true;
+    }
+
+    @Override
+    public String getToken(User user) {
+        return jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
     }
 }
