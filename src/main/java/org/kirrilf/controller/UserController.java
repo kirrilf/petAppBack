@@ -2,7 +2,7 @@ package org.kirrilf.controller;
 
 import org.kirrilf.dto.UserDto;
 import org.kirrilf.model.User;
-import org.kirrilf.security.jwt.JwtTokenProvider;
+import org.kirrilf.security.jwt.access.JwtAccessTokenProvider;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ public class UserController {
 
 
     @Autowired
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService, JwtAccessTokenProvider jwtAccessTokenProvider) {
         this.userService = userService;
     }
 

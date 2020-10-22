@@ -5,9 +5,9 @@ import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
 import org.kirrilf.repository.RoleRepository;
 import org.kirrilf.repository.UserRepository;
-import org.kirrilf.security.jwt.JwtTokenProvider;
+import org.kirrilf.security.jwt.access.JwtAccessTokenProvider;
+import org.kirrilf.security.jwt.refresh.JwtRefreshTokenProvider;
 import org.kirrilf.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAccessTokenProvider jwtAccessTokenProvider;
+    private final JwtRefreshTokenProvider jwtRefreshTokenProvider;
 
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, JwtAccessTokenProvider jwtAccessTokenProvider, JwtRefreshTokenProvider jwtRefreshTokenProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtAccessTokenProvider = jwtAccessTokenProvider;
+        this.jwtRefreshTokenProvider = jwtRefreshTokenProvider;
     }
 
     @Override
@@ -81,7 +83,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getToken(User user) {
-        return jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
+    public String getAccessToken(User user) {
+        return jwtAccessTokenProvider.createToken(user.getUsername(), user.getRoles());
+    }
+
+    @Override
+    public String getRefreshToken(User user) {
+        return jwtRefreshTokenProvider.createToken(user.getUsername(), user.getRoles());
     }
 }

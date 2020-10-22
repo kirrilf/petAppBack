@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/posts")
+@CrossOrigin(origins = "*")
 public class    PostController {
 
     private final PostService postService;
@@ -24,7 +25,7 @@ public class    PostController {
 
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> allPosts(@RequestHeader("Authorization") String encoding){
+    public ResponseEntity<List<PostDto>> allPosts(){
         List<Post> posts  = postService.getAll();
         List<PostDto> postsDto = new ArrayList<>();
         for(Post i : posts){

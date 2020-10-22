@@ -1,4 +1,4 @@
-package org.kirrilf.security.jwt;
+package org.kirrilf.security.jwt.refresh;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,23 +12,24 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-
 @Component
-public class JwtTokenFilter extends GenericFilterBean {
+public class JwtRefreshTokenFilter extends GenericFilterBean {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtRefreshTokenProvider jwtRefreshTokenProvider;
 
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+
+    public JwtRefreshTokenFilter(JwtRefreshTokenProvider jwtRefreshTokenProvider) {
+        this.jwtRefreshTokenProvider = jwtRefreshTokenProvider;
     }
+
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
             throws IOException, ServletException {
 
-        String token = jwtTokenProvider.resolveToken((HttpServletRequest) req);
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Authentication auth = jwtTokenProvider.getAuthentication(token);
+        String token = jwtRefreshTokenProvider.resolveToken((HttpServletRequest) req);
+        if (token != null && jwtRefreshTokenProvider.validateToken(token)) {
+            Authentication auth = jwtRefreshTokenProvider.getAuthentication(token);
 
             if (auth != null) {
                 SecurityContextHolder.getContext().setAuthentication(auth);
@@ -36,6 +37,5 @@ public class JwtTokenFilter extends GenericFilterBean {
         }
         filterChain.doFilter(req, res);
     }
-
 
 }

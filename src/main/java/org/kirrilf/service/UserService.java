@@ -16,5 +16,7 @@ public interface UserService {
 
     boolean delete(Long id);
 
-    String getToken(User user);
+    String getAccessToken(User user);
+
+    String getRefreshToken(User user);
 }

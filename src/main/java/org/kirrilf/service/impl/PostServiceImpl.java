@@ -2,9 +2,8 @@ package org.kirrilf.service.impl;
 
 import org.kirrilf.model.Post;
 import org.kirrilf.model.Status;
-import org.kirrilf.model.User;
 import org.kirrilf.repository.PostRepository;
-import org.kirrilf.security.jwt.JwtTokenProvider;
+import org.kirrilf.security.jwt.access.JwtAccessTokenProvider;
 import org.kirrilf.service.PostService;
 import org.kirrilf.service.UserService;
 import org.springframework.stereotype.Service;
@@ -16,12 +15,12 @@ import java.util.List;
 @Service
 public class PostServiceImpl implements PostService {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAccessTokenProvider jwtAccessTokenProvider;
     private final PostRepository postRepository;
     private final UserService userService;
 
-    public PostServiceImpl(JwtTokenProvider jwtTokenProvider, PostRepository postRepository, UserService userService) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public PostServiceImpl(JwtAccessTokenProvider jwtAccessTokenProvider, PostRepository postRepository, UserService userService) {
+        this.jwtAccessTokenProvider = jwtAccessTokenProvider;
         this.postRepository = postRepository;
         this.userService = userService;
 
@@ -33,8 +32,8 @@ public class PostServiceImpl implements PostService {
         post.setCreated(new Date());
         post.setUpdated(new Date());
         post.setAuthor(userService.findByUsername(
-                jwtTokenProvider.getUsername(
-                    jwtTokenProvider.resolveToken(request))));
+                jwtAccessTokenProvider.getUsername(
+                    jwtAccessTokenProvider.resolveToken(request))));
         return postRepository.save(post);
     }
 
@@ -56,8 +55,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post update(String text, Long postId, HttpServletRequest request) {
         Long userId = userService.findByUsername(
-                jwtTokenProvider.getUsername(
-                        jwtTokenProvider.resolveToken(request)
+                jwtAccessTokenProvider.getUsername(
+                        jwtAccessTokenProvider.resolveToken(request)
                 )
         ).getId();
         Post postFromBb = postRepository.findById(postId).orElse(null);

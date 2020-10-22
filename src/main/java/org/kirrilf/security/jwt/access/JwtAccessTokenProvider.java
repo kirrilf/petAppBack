@@ -1,8 +1,10 @@
-package org.kirrilf.security.jwt;
+package org.kirrilf.security.jwt.access;
 
 import io.jsonwebtoken.*;
 import org.kirrilf.model.Role;
+import org.kirrilf.security.jwt.JwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,17 +22,21 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class JwtTokenProvider {
+public class JwtAccessTokenProvider {
 
     @Value("${jwt.token.secret}")
     private String secret;
 
-    @Value("${jwt.token.expired}")
-    private long validityInMilliseconds;
+    @Value("${jwt.access.token.expired.sec}")
+    private long validityInSeconds;
 
+
+    private final UserDetailsService userDetailsService;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    public JwtAccessTokenProvider(@Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -48,7 +54,7 @@ public class JwtTokenProvider {
         claims.put("roles", getRoleNames(roles));
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date validity = new Date(now.getTime() + validityInSeconds * 1000);
 
         return Jwts.builder()//
                 .setClaims(claims)//

@@ -2,7 +2,6 @@ package org.kirrilf.controller;
 
 import org.kirrilf.dto.AuthenticationUserDto;
 import org.kirrilf.model.User;
-import org.kirrilf.security.jwt.JwtTokenProvider;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,11 +44,13 @@ public class AuthenticationController {
                 throw new UsernameNotFoundException("User with username: " + username + " not found");
             }
 
-            String token = userService.getToken(user);
+            String accessToken = userService.getAccessToken(user);
+            String refreshToken = userService.getRefreshToken(user);
 
             Map<Object, Object> response = new HashMap<>();
             response.put("username", username);
-            response.put("token", token);
+            response.put("access_token", accessToken);
+            response.put("refresh_token", refreshToken);
 
             return  new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AuthenticationException e) {
