@@ -1,6 +1,5 @@
 package org.kirrilf.repository;
 
-import org.hibernate.boot.archive.scan.spi.PackageInfoArchiveEntryHandler;
 import org.kirrilf.model.Post;
 import org.kirrilf.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

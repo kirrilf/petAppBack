@@ -5,13 +5,14 @@ import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
 import org.kirrilf.repository.RoleRepository;
 import org.kirrilf.repository.UserRepository;
-import org.kirrilf.security.jwt.access.JwtAccessTokenProvider;
-import org.kirrilf.security.jwt.refresh.JwtRefreshTokenProvider;
+import org.kirrilf.security.jwt.JwtAccessTokenProvider;
+import org.kirrilf.security.jwt.JwtRefreshTokenProvider;
 import org.kirrilf.service.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,7 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getRefreshToken(User user) {
-        return jwtRefreshTokenProvider.createToken(user.getUsername(), user.getRoles());
+    public String getRefreshToken(User user, HttpServletRequest req) {
+        return jwtRefreshTokenProvider.createToken(user.getUsername(), jwtRefreshTokenProvider.resolveFingerprint(req));
     }
 }

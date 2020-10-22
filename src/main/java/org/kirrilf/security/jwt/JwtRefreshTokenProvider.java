@@ -1,7 +1,10 @@
-package org.kirrilf.security.jwt.refresh;
+package org.kirrilf.security.jwt;
 
 import io.jsonwebtoken.*;
+import org.kirrilf.model.RefreshToken;
 import org.kirrilf.model.Role;
+import org.kirrilf.model.Status;
+import org.kirrilf.repository.RefreshTokenRepository;
 import org.kirrilf.security.jwt.JwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,9 +34,12 @@ public class JwtRefreshTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
+    private final RefreshTokenRepository refreshTokenRepository;
+
     @Autowired
-    public JwtRefreshTokenProvider(@Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService) {
+    public JwtRefreshTokenProvider(@Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService, RefreshTokenRepository refreshTokenRepository) {
         this.userDetailsService = userDetailsService;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
 
@@ -42,21 +48,40 @@ public class JwtRefreshTokenProvider {
         secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String createToken(String username, List<Role> roles) {
+    public String createToken(String username, String fingerprint) {
+
 
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", getRoleNames(roles));
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInSeconds);
 
-        return Jwts.builder()//
-                .setClaims(claims)//
-                .setIssuedAt(now)//
-                .setExpiration(validity)//
-                .signWith(SignatureAlgorithm.HS256, secret)//
-                .compact();
+        String token = Jwts.builder()//
+                        .setClaims(claims)//
+                        .setIssuedAt(now)//
+                        .setExpiration(validity)//
+                        .signWith(SignatureAlgorithm.HS256, secret)//
+                        .compact();
+
+        RefreshToken refreshToken = refreshTokenRepository.findByFingerprint(fingerprint);
+        if(refreshToken != null){
+            refreshToken.setToken(token);
+            refreshToken.setUpdated(new Date());
+            refreshTokenRepository.save(refreshToken);
+        }else {
+            RefreshToken newRefreshToken = new RefreshToken();
+            newRefreshToken.setToken(token);
+            newRefreshToken.setFingerprint(fingerprint);
+            newRefreshToken.setStatus(Status.ACTIVE);
+            newRefreshToken.setUpdated(new Date());
+            newRefreshToken.setCreated(new Date());
+            refreshTokenRepository.save(newRefreshToken);
+        }
+
+        return token;
     }
+
+
 
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
@@ -75,23 +100,26 @@ public class JwtRefreshTokenProvider {
         return null;
     }
 
-    public boolean validateToken(String token) {
+    public String resolveFingerprint(HttpServletRequest req) {
+        String fingerprint = req.getHeader("Fingerprint");
+        if (fingerprint != null) {
+            return fingerprint;
+        }
+        return null;
+    }
+
+    public boolean validateToken(String token, String fingerprint) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-
-            return !claims.getBody().getExpiration().before(new Date());
+             RefreshToken tokenBD = refreshTokenRepository.findByFingerprint(fingerprint);
+            if(tokenBD.getToken().equals(token) && tokenBD.getStatus() == Status.ACTIVE) {
+                return !claims.getBody().getExpiration().before(new Date());
+            }else {
+                throw new JwtAuthenticationException("Bad fingerprint");
+            }
         } catch (JwtException | IllegalArgumentException e) {
             throw new JwtAuthenticationException("JWT token is expired or invalid");
         }
     }
 
-    private List<String> getRoleNames(List<Role> userRoles) {
-        List<String> result = new ArrayList<>();
-
-        userRoles.forEach(role -> {
-            result.add(role.getName());
-        });
-
-        return result;
-    }
 }

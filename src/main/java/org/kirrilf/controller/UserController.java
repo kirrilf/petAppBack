@@ -2,7 +2,7 @@ package org.kirrilf.controller;
 
 import org.kirrilf.dto.UserDto;
 import org.kirrilf.model.User;
-import org.kirrilf.security.jwt.access.JwtAccessTokenProvider;
+import org.kirrilf.security.jwt.JwtAccessTokenProvider;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpServletRequest;

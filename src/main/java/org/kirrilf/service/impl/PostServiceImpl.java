@@ -3,7 +3,7 @@ package org.kirrilf.service.impl;
 import org.kirrilf.model.Post;
 import org.kirrilf.model.Status;
 import org.kirrilf.repository.PostRepository;
-import org.kirrilf.security.jwt.access.JwtAccessTokenProvider;
+import org.kirrilf.security.jwt.JwtAccessTokenProvider;
 import org.kirrilf.service.PostService;
 import org.kirrilf.service.UserService;
 import org.springframework.stereotype.Service;

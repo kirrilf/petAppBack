@@ -36,7 +36,7 @@ public class RefreshController {
         User user = userService.findByUsername(auth.getName());
 
         String accessToken = userService.getAccessToken(user);
-        String refreshToken = userService.getRefreshToken(user);
+        String refreshToken = userService.getRefreshToken(user, request);
 
         Map<Object, Object> response = new HashMap<>();
         response.put("access_token", accessToken);

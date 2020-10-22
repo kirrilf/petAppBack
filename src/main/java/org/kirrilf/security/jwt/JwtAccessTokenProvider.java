@@ -1,4 +1,4 @@
-package org.kirrilf.security.jwt.access;
+package org.kirrilf.security.jwt;
 
 import io.jsonwebtoken.*;
 import org.kirrilf.model.Role;
@@ -84,7 +84,9 @@ public class JwtAccessTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-
+            if(Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("roles") == null){
+                throw new JwtAuthenticationException("Use refresh toke for access");
+            }
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             throw new JwtAuthenticationException("JWT token is expired or invalid");

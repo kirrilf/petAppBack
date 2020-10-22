@@ -1,8 +1,9 @@
 package org.kirrilf.config;
 
-import org.kirrilf.security.jwt.access.JwtAccessTokenFilter;
+import org.kirrilf.security.jwt.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,10 +15,10 @@ import org.springframework.security.web.session.SessionManagementFilter;
 
 
 @EnableWebSecurity
+@Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
-    private final JwtAccessTokenFilter jwtFilter;
-
+    private final JwtTokenFilter jwtFilter;
 
 
     private static final String ADMIN_ENDPOINT = "/api/admin/**";
@@ -26,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 
     @Autowired
-    public SecurityConfig(JwtAccessTokenFilter jwtFilter) {
+    public SecurityConfig(JwtTokenFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 

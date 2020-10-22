@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Table(name = "messages")
 public class Post extends BaseEntity {
 
-    @Column(name = "message", unique = true)
+    @Column(name = "message")
     private String text;
 
     @ManyToOne(fetch = FetchType.EAGER)
