@@ -2,10 +2,8 @@ package org.kirrilf.security.jwt;
 
 import io.jsonwebtoken.*;
 import org.kirrilf.model.RefreshToken;
-import org.kirrilf.model.Role;
 import org.kirrilf.model.Status;
 import org.kirrilf.repository.RefreshTokenRepository;
-import org.kirrilf.security.jwt.JwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +15,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class JwtRefreshTokenProvider {
@@ -115,10 +111,10 @@ public class JwtRefreshTokenProvider {
             if(tokenBD.getToken().equals(token) && tokenBD.getStatus() == Status.ACTIVE) {
                 return !claims.getBody().getExpiration().before(new Date());
             }else {
-                throw new JwtAuthenticationException("Bad fingerprint");
+                return false;
             }
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtAuthenticationException("JWT token is expired or invalid");
+            return false;
         }
     }
 
