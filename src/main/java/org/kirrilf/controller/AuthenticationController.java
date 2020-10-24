@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<Object, Object>> login(@RequestBody AuthenticationUserDto requestDto, HttpServletRequest request) {
+    public ResponseEntity<Map<Object, Object>> login(@RequestBody AuthenticationUserDto requestDto, HttpServletRequest request, HttpServletResponse response) {
         try {
             String username = requestDto.getUsername();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
@@ -48,12 +50,22 @@ public class AuthenticationController {
             String accessToken = userService.getAccessToken(user);
             String refreshToken = userService.getRefreshToken(user, request);
 
-            Map<Object, Object> response = new HashMap<>();
-            response.put("username", username);
-            response.put("access_token", accessToken);
-            response.put("refresh_token", refreshToken);
+            Map<Object, Object> res = new HashMap<>();
+            res.put("username", username);
+            res.put("access_token", accessToken);
+            res.put("refresh_token", refreshToken);
 
-            return  new ResponseEntity<>(response, HttpStatus.OK);
+            /*Cookie cookie = new Cookie("refresh_token", refreshToken);
+            cookie.setMaxAge(60 * 24 * 60 * 60); // expires in 7 days
+            cookie.setSecure(true);
+            cookie.setHttpOnly(true);
+
+            response.addCookie(cookie);
+
+             */
+
+
+            return  new ResponseEntity<>(res, HttpStatus.OK);
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username or password");
         }

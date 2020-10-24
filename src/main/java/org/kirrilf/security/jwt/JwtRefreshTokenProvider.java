@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
@@ -91,17 +92,13 @@ public class JwtRefreshTokenProvider {
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
             if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         }
         return null;
     }
 
     public String resolveFingerprint(HttpServletRequest req) {
-        String fingerprint = req.getHeader("Fingerprint");
-        if (fingerprint != null) {
-            return fingerprint;
-        }
-        return null;
+        return req.getHeader("Fingerprint");
     }
 
     public boolean validateToken(String token, String fingerprint) {
@@ -116,6 +113,16 @@ public class JwtRefreshTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public String getRefreshTokenFromCookie(HttpServletRequest req){
+        Cookie[] cookies = req.getCookies();
+        for (Cookie i : cookies){
+            if(i.getName().equals("refresh_token")){
+                return i.getValue();
+            }
+        }
+        return null;
     }
 
 }

@@ -24,6 +24,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         this.jwtRefreshTokenProvider = jwtRefreshTokenProvider;
     }
 
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
             throws IOException, ServletException {
@@ -32,6 +33,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         String ref = request.getRequestURI();
         if ("/api/auth/refresh".equals(ref)) {
             String token = jwtRefreshTokenProvider.resolveToken((HttpServletRequest) req);
+            //String token = jwtRefreshTokenProvider.getRefreshTokenFromCookie((HttpServletRequest) req);
             String fingerprint = jwtRefreshTokenProvider.resolveFingerprint((HttpServletRequest) req);
             if (token != null && jwtRefreshTokenProvider.validateToken(token, fingerprint)) {
                 Authentication auth = jwtRefreshTokenProvider.getAuthentication(token);

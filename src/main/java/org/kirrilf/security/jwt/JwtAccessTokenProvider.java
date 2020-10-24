@@ -73,6 +73,7 @@ public class JwtAccessTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest req) {
+        req.getCookies();
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
             return bearerToken.substring(7);
