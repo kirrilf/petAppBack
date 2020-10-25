@@ -29,4 +29,12 @@ public class Post extends BaseEntity {
     public void setAuthor(User author) {
         this.author = author;
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "text='" + text + '\'' +
+                ", author=" + author +
+                "} " + super.toString();
+    }
 }

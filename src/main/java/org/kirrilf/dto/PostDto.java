@@ -57,4 +57,13 @@ public class PostDto {
     public void setAuthorId(Long authorId) {
         this.authorId = authorId;
     }
+
+    @Override
+    public String toString() {
+        return "PostDto{" +
+                "id=" + id +
+                ", text='" + text + '\'' +
+                ", authorId=" + authorId +
+                '}';
+    }
 }

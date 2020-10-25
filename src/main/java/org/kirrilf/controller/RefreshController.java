@@ -1,5 +1,6 @@
 package org.kirrilf.controller;
 
+import org.apache.log4j.Logger;
 import org.kirrilf.model.User;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -23,18 +22,17 @@ import java.util.Map;
 @RequestMapping(value = "/api/auth")
 public class RefreshController {
 
-    private final AuthenticationManager authenticationManager;
-
     private final UserService userService;
+
+    private static final Logger logger = Logger.getLogger(RefreshController.class);
 
     @Autowired
     public RefreshController(AuthenticationManager authenticationManager, UserService userService) {
-        this.authenticationManager = authenticationManager;
         this.userService = userService;
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<Map<Object, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<Map<Object, Object>> refresh(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findByUsername(auth.getName());
 
@@ -52,6 +50,8 @@ public class RefreshController {
 
         response.addCookie(cookie);*/
 
-        return  new ResponseEntity<>(res, HttpStatus.OK);
+        logger.info("Get new refresh token for user: " + user);
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

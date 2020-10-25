@@ -1,5 +1,6 @@
 package org.kirrilf.controller;
 
+import org.apache.log4j.Logger;
 import org.kirrilf.dto.AuthenticationUserDto;
 import org.kirrilf.model.User;
 import org.kirrilf.service.UserService;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -25,6 +25,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/auth")
 public class AuthenticationController {
+
+    private static final Logger logger = Logger.getLogger(AuthenticationController.class);
 
     private final AuthenticationManager authenticationManager;
 
@@ -40,10 +42,12 @@ public class AuthenticationController {
     public ResponseEntity<Map<Object, Object>> login(@RequestBody AuthenticationUserDto requestDto, HttpServletRequest request, HttpServletResponse response) {
         try {
             String username = requestDto.getUsername();
+            logger.debug("Get requestDto "+ requestDto);
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
             User user = userService.findByUsername(username);
 
             if (user == null) {
+                logger.error("Not found user with username: {}"+ username);
                 throw new UsernameNotFoundException("User with username: " + username + " not found");
             }
 
@@ -54,19 +58,11 @@ public class AuthenticationController {
             res.put("username", username);
             res.put("access_token", accessToken);
             res.put("refresh_token", refreshToken);
-
-            /*Cookie cookie = new Cookie("refresh_token", refreshToken);
-            cookie.setMaxAge(60 * 24 * 60 * 60); // expires in 7 days
-            cookie.setSecure(true);
-            cookie.setHttpOnly(true);
-
-            response.addCookie(cookie);
-
-             */
-
+            logger.info("Authentication user: "+ username);
 
             return  new ResponseEntity<>(res, HttpStatus.OK);
         } catch (AuthenticationException e) {
+            logger.error(e.getMessage(), e);
             throw new BadCredentialsException("Invalid username or password");
         }
     }

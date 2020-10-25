@@ -1,5 +1,6 @@
 package org.kirrilf.controller;
 
+import org.apache.log4j.Logger;
 import org.kirrilf.dto.RegistrationUserDto;
 import org.kirrilf.dto.UserDto;
 import org.kirrilf.model.User;
@@ -21,26 +22,31 @@ public class RegistrationController {
 
     private final UserService userService;
 
+    private static final Logger logger = Logger.getLogger(RefreshController.class);
+
     @Autowired
     public RegistrationController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<Map<Object, Object>> registration(@RequestBody RegistrationUserDto userRegistrationDto){
+    public ResponseEntity<Map<Object, Object>> registration(@RequestBody RegistrationUserDto userRegistrationDto) {
         User user = userRegistrationDto.toUser();
 
         Map<Object, Object> response = new HashMap<>();
 
         User registerUser = userService.register(user);
 
-        if(registerUser == null){
+        logger.debug("Try register new user: " + userRegistrationDto);
+
+        if (registerUser == null) {
             response.put("message", "User with this username or email already exist");
+            logger.info("User with username or email already exist, " + userRegistrationDto);
             return new ResponseEntity<>(response, HttpStatus.I_AM_A_TEAPOT);
-        }
-        else {
+        } else {
             UserDto registerUserDto = UserDto.fromUser(registerUser);
             response.put("register User", registerUserDto);
+            logger.info("User success register " + registerUserDto);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 

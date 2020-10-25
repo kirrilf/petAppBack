@@ -1,5 +1,6 @@
 package org.kirrilf.controller;
 
+import org.apache.log4j.Logger;
 import org.kirrilf.dto.AdminUserDto;
 import org.kirrilf.model.User;
 import org.kirrilf.service.UserService;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/admin")
 public class AdminController {
 
+    private static final Logger logger = Logger.getLogger(AdminController.class);
+
     private final UserService userService;
 
     @Autowired
@@ -26,7 +29,10 @@ public class AdminController {
     public ResponseEntity<AdminUserDto> getUserById(@PathVariable(name = "id") Long id){
         User user = userService.findById(id);
 
+        logger.debug("Get admin request with user id "+id);
+
         if(user == null){
+            logger.error("User with id "+id+" not found");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 

@@ -36,6 +36,6 @@ public class Role  extends BaseEntity {
         return "Role{" +
                 "name='" + name + '\'' +
                 ", users=" + users +
-                '}';
+                "} " + super.toString();
     }
 }
