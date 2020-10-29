@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,6 +24,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Sql(value = {"/create-user-before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/delete-user-after.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@TestPropertySource("/application-test.properties")
 public class AuthenticationControllerTest {
 
 
@@ -36,28 +41,28 @@ public class AuthenticationControllerTest {
     @Test
     public void testOkLogin() throws Exception{
         AuthenticationUserDto authenticationUserDto = new AuthenticationUserDto();
-        authenticationUserDto.setUsername("kir");
-        authenticationUserDto.setPassword("kir");
+        authenticationUserDto.setUsername("test");
+        authenticationUserDto.setPassword("test");
         this.mockMvc.perform(post("/api/auth/login")
                             .content(mapper.writeValueAsString(authenticationUserDto))
                             .contentType(MediaType.APPLICATION_JSON_UTF8)
-                            .header("Fingerprint", 2))
+                            .header("Fingerprint", "test"))
                 //.andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username", is("kir")))
+                .andExpect(jsonPath("$.username", is("test")))
                 .andExpect(jsonPath("$.access_token", is(notNullValue())))
-                .andExpect(jsonPath("$.refresh_token", is(notNullValue())));;
+                .andExpect(jsonPath("$.refresh_token", is(notNullValue())));
     }
 
     @Test
     public void testBadLoginWithBadUsername() throws Exception{
         AuthenticationUserDto authenticationUserDto = new AuthenticationUserDto();
-        authenticationUserDto.setUsername("kir1");
-        authenticationUserDto.setPassword("kir");
+        authenticationUserDto.setUsername("test1");
+        authenticationUserDto.setPassword("test");
         this.mockMvc.perform(post("/api/auth/login")
                 .content(mapper.writeValueAsString(authenticationUserDto))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .header("Fingerprint", 2))
+                .header("Fingerprint", "test"))
                 //.andDo(print())
                 .andExpect(status().isForbidden());
     }
@@ -65,12 +70,12 @@ public class AuthenticationControllerTest {
     @Test
     public void testBadLoginWithBadPassword() throws Exception{
         AuthenticationUserDto authenticationUserDto = new AuthenticationUserDto();
-        authenticationUserDto.setUsername("kir");
-        authenticationUserDto.setPassword("kir2");
+        authenticationUserDto.setUsername("test");
+        authenticationUserDto.setPassword("test1");
         this.mockMvc.perform(post("/api/auth/login")
                 .content(mapper.writeValueAsString(authenticationUserDto))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .header("Fingerprint", 2))
+                .header("Fingerprint", "test"))
                 //.andDo(print())
                 .andExpect(status().isForbidden());
     }
@@ -78,8 +83,8 @@ public class AuthenticationControllerTest {
     @Test
     public void testBadLoginWithoutFingerprint() throws Exception{
         AuthenticationUserDto authenticationUserDto = new AuthenticationUserDto();
-        authenticationUserDto.setUsername("kir");
-        authenticationUserDto.setPassword("kir");
+        authenticationUserDto.setUsername("test");
+        authenticationUserDto.setPassword("test");
         this.mockMvc.perform(post("/api/auth/login")
                 .content(mapper.writeValueAsString(authenticationUserDto))
                 .contentType(MediaType.APPLICATION_JSON_UTF8))

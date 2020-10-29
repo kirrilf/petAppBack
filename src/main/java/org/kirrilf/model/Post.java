@@ -4,10 +4,10 @@ package org.kirrilf.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "posts")
 public class Post extends BaseEntity {
 
-    @Column(name = "message")
+    @Column(name = "text")
     private String text;
 
     @ManyToOne(fetch = FetchType.EAGER)
