@@ -3,6 +3,7 @@ package org.kirrilf.controller;
 import org.apache.log4j.Logger;
 import org.kirrilf.dto.AuthenticationUserDto;
 import org.kirrilf.model.User;
+import org.kirrilf.security.jwt.AuthException;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ public class AuthenticationController {
     public ResponseEntity<Map<Object, Object>> login(@RequestBody AuthenticationUserDto requestDto, HttpServletRequest request, HttpServletResponse response) {
         try {
             String username = requestDto.getUsername();
-            logger.debug("Get requestDto "+ requestDto);
+            logger.debug("Get requestDto for user"+ requestDto.getUsername());
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
             User user = userService.findByUsername(username);
 
@@ -54,6 +55,7 @@ public class AuthenticationController {
             String accessToken = userService.getAccessToken(user);
             String refreshToken = userService.getRefreshToken(user, request);
 
+
             Map<Object, Object> res = new HashMap<>();
             res.put("username", username);
             res.put("access_token", accessToken);
@@ -61,7 +63,11 @@ public class AuthenticationController {
             logger.info("Authentication user: "+ username);
 
             return  new ResponseEntity<>(res, HttpStatus.OK);
-        } catch (AuthenticationException e) {
+        }catch (AuthException e){
+            logger.error(e.getMessage(), e);
+            throw new BadCredentialsException("Not fingerprint");
+        }
+        catch (AuthenticationException e) {
             logger.error(e.getMessage(), e);
             throw new BadCredentialsException("Invalid username or password");
         }

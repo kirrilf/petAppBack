@@ -5,6 +5,7 @@ import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
 import org.kirrilf.repository.RoleRepository;
 import org.kirrilf.repository.UserRepository;
+import org.kirrilf.security.jwt.AuthException;
 import org.kirrilf.security.jwt.JwtAccessTokenProvider;
 import org.kirrilf.security.jwt.JwtRefreshTokenProvider;
 import org.kirrilf.service.UserService;
@@ -89,7 +90,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getRefreshToken(User user, HttpServletRequest req) {
+    public String getRefreshToken(User user, HttpServletRequest req) throws AuthException {
         return jwtRefreshTokenProvider.createToken(user.getUsername(), jwtRefreshTokenProvider.resolveFingerprint(req));
     }
 }

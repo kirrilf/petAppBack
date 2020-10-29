@@ -43,7 +43,7 @@ public class PostController {
     public ResponseEntity<PostDto> create(@RequestBody PostDto postDto, HttpServletRequest request) {
         Post post = postDto.toPost();
         PostDto result = PostDto.fromPost(postService.add(post, request));
-        logger.debug("Create new post: " + post);
+        logger.debug("Create new post: " + post.getText() + "With author " + post.getAuthor());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -61,7 +61,7 @@ public class PostController {
     @PutMapping(value = "/{id}")
     public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id, @RequestBody PostDto postDtoText, HttpServletRequest request) {
         PostDto postDto = PostDto.fromPost(postService.update(postDtoText.getText(), id, request));
-        logger.debug("Update post with id: " + id + " and text " + postDtoText);
+        logger.debug("Update post with id: " + id + " and text " + postDtoText.getText());
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
 

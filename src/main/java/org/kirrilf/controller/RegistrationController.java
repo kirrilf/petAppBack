@@ -37,16 +37,16 @@ public class RegistrationController {
 
         User registerUser = userService.register(user);
 
-        logger.debug("Try register new user: " + userRegistrationDto);
+        logger.debug("Try register new user: " + userRegistrationDto.getUsername());
 
         if (registerUser == null) {
             response.put("message", "User with this username or email already exist");
-            logger.info("User with username or email already exist, " + userRegistrationDto);
+            logger.info("User with username or email already exist, " + userRegistrationDto.getUsername());
             return new ResponseEntity<>(response, HttpStatus.I_AM_A_TEAPOT);
         } else {
             UserDto registerUserDto = UserDto.fromUser(registerUser);
             response.put("register User", registerUserDto);
-            logger.info("User success register " + registerUserDto);
+            logger.info("User success register " + registerUserDto.getUsername());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 

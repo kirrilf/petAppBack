@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -97,8 +98,12 @@ public class JwtRefreshTokenProvider {
         return null;
     }
 
-    public String resolveFingerprint(HttpServletRequest req) {
-        return req.getHeader("Fingerprint");
+    public String resolveFingerprint(HttpServletRequest req) throws AuthException {
+        String fingerprint = req.getHeader("Fingerprint");
+        if(fingerprint == null){
+            throw new AuthException();
+        }
+        return fingerprint;
     }
 
     public boolean validateToken(String token, String fingerprint) {

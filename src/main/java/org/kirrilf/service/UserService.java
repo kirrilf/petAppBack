@@ -1,6 +1,7 @@
 package org.kirrilf.service;
 
 import org.kirrilf.model.User;
+import org.kirrilf.security.jwt.AuthException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -19,5 +20,5 @@ public interface UserService {
 
     String getAccessToken(User user);
 
-    String getRefreshToken(User user, HttpServletRequest req);
+    String getRefreshToken(User user, HttpServletRequest req) throws AuthException;
 }
