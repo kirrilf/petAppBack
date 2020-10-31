@@ -49,14 +49,7 @@ public class RefreshController {
             logger.info("Get new refresh token for user: " + user.getUsername());
 
             return new ResponseEntity<>(res, HttpStatus.OK);
-        /*Cookie cookie = new Cookie("refresh_token", refreshToken);
-        cookie.setMaxAge(60 * 24 * 60 * 60); // expires in 7 days
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
 
-        response.addCookie(cookie);*/
-
-            //
         }catch (AuthException e){
             logger.error(e.getMessage(), e);
             throw new BadCredentialsException(e.getMessage());

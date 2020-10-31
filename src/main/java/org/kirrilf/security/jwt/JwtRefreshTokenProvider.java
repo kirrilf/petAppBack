@@ -98,12 +98,8 @@ public class JwtRefreshTokenProvider {
         return null;
     }
 
-    public String resolveFingerprint(HttpServletRequest req) throws AuthException {
-        String fingerprint = req.getHeader("Fingerprint");
-        if(fingerprint == null){
-            throw new AuthException();
-        }
-        return fingerprint;
+    public String resolveFingerprint(HttpServletRequest req){
+        return req.getHeader("Fingerprint");
     }
 
     public boolean validateToken(String token, String fingerprint) {

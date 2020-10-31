@@ -45,7 +45,7 @@ public class RegistrationController {
             return new ResponseEntity<>(response, HttpStatus.I_AM_A_TEAPOT);
         } else {
             UserDto registerUserDto = UserDto.fromUser(registerUser);
-            response.put("register User", registerUserDto);
+            response.put("registerUser", registerUserDto);
             logger.info("User success register " + registerUserDto.getUsername());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }

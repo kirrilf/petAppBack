@@ -37,18 +37,16 @@ public class JwtTokenFilter extends GenericFilterBean {
             String token = jwtRefreshTokenProvider.resolveToken((HttpServletRequest) req);
             //String token = jwtRefreshTokenProvider.getRefreshTokenFromCookie((HttpServletRequest) req);
             String fingerprint = null;
-            try {
-                fingerprint = jwtRefreshTokenProvider.resolveFingerprint((HttpServletRequest) req);
-            } catch (AuthException e) {
-                e.printStackTrace();
-            }
+            fingerprint = jwtRefreshTokenProvider.resolveFingerprint((HttpServletRequest) req);
+            if(fingerprint != null) {
 
-            logger.debug("Filter refresh token, token  has?: " + (token != null) + ", fingerprint:" + fingerprint);
-            if (token != null && jwtRefreshTokenProvider.validateToken(token, fingerprint)) {
-                Authentication auth = jwtRefreshTokenProvider.getAuthentication(token);
+                logger.debug("Filter refresh token, token  has?: " + (token != null) + ", fingerprint:" + fingerprint);
+                if (token != null && jwtRefreshTokenProvider.validateToken(token, fingerprint)) {
+                    Authentication auth = jwtRefreshTokenProvider.getAuthentication(token);
 
-                if (auth != null) {
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    if (auth != null) {
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
                 }
             }
         } else {
