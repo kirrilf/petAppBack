@@ -3,6 +3,7 @@ package org.kirrilf.model;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table(name = "posts")
 public class Post extends BaseEntity {
@@ -14,7 +15,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User author;
 
-    private String filename;
+    private String fileName;
+
 
     public String getText() {
         return text;
@@ -32,12 +34,12 @@ public class Post extends BaseEntity {
         this.author = author;
     }
 
-    public String getFilename() {
-        return filename;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     @Override

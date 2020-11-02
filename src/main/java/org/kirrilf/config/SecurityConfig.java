@@ -2,6 +2,7 @@ package org.kirrilf.config;
 
 import org.kirrilf.security.jwt.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
@@ -29,6 +31,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     private static final String LOGIN_ENDPOINT = "/api/auth/login";
     private static final String REGISTRATION_ENDPOINT = "/api/registration";
     private static final String POST_ENDPOINT = "/api/posts";
+
+    @Value("${upload.path}")
+    private String uploadPath;
+
 
     @Autowired
     public SecurityConfig(JwtTokenFilter jwtFilter) {
@@ -73,6 +79,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .allowedMethods("*")
                 .allowedOrigins("*")
                 .allowedHeaders("*");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/img/**")
+                .addResourceLocations("file://" + uploadPath + "/");
     }
 
 }

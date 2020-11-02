@@ -60,15 +60,13 @@ public class PostController {
     ) throws IOException {
         Post post = new Post();
         post.setText(text);
-        if (file != null) {
+        if (file != null && file.getOriginalFilename() != null) {
             File uploadDir = new File(uploadPath);
-            if(!uploadDir.exists()){
-                uploadDir.mkdir();
-            }
             String uuidFile = UUID.randomUUID().toString();
             String resultNameFile = uuidFile + "." + file.getOriginalFilename();
-            file.transferTo(new File(uploadPath + "/" +resultNameFile));
-            post.setFilename(resultNameFile);
+            file.transferTo(new File(uploadPath + "/" + resultNameFile));
+            post.setFileName(resultNameFile);
+
         }
 
 
