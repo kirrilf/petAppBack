@@ -3,13 +3,7 @@ package org.kirrilf.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.kirrilf.model.Post;
-import org.kirrilf.model.User;
-import org.kirrilf.repository.UserRepository;
 import org.kirrilf.service.UserService;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDto {
@@ -18,6 +12,8 @@ public class PostDto {
     private String text;
     private Long authorId;
     private String fileName;
+    private int count;
+    private Boolean meLiked;
 
 
     public Post toPost(){
@@ -32,7 +28,13 @@ public class PostDto {
         postDto.setId(post.getId());
         postDto.setText(post.getText());
         postDto.setAuthorId(post.getAuthor().getId());
-        postDto.setFileName(post.getFilename());
+        postDto.setFileName(post.getFileName());
+        postDto.setCount(post.getLikes().size());
+        boolean meLiked = false;
+        if(post.getLikes().contains(post.getAuthor())){
+            meLiked = true;
+        }
+        postDto.setMeLiked(meLiked);
         return postDto;
     }
 
@@ -67,6 +69,22 @@ public class PostDto {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public Boolean getMeLiked() {
+        return meLiked;
+    }
+
+    public void setMeLiked(Boolean meLiked) {
+        this.meLiked = meLiked;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package org.kirrilf.service.impl;
 
+import org.kirrilf.dto.PostDto;
 import org.kirrilf.model.Post;
 import org.kirrilf.model.Status;
+import org.kirrilf.model.User;
 import org.kirrilf.repository.PostRepository;
 import org.kirrilf.security.jwt.JwtAccessTokenProvider;
 import org.kirrilf.service.PostService;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -67,4 +70,35 @@ public class PostServiceImpl implements PostService {
         postFromBb.setUpdated(new Date());
         return postRepository.save(postFromBb);
     }
+
+    @Override
+    public PostDto like(Long id, HttpServletRequest request) {
+        Post post = postRepository.findById(id).orElse(null);
+        if(post != null) {
+            PostDto postDto = PostDto.fromPost(post);
+            Set<User> likes = post.getLikes();
+            User user = userService.findById(getUserIdByRequest(request));
+            if(likes.contains(user)){
+                likes.remove(user);
+                postDto.setMeLiked(false);
+            }else {
+                likes.add(user);
+                postDto.setMeLiked(true);
+            }
+            post.setLikes(likes);
+            postDto.setCount(likes.size());
+            postRepository.save(post);
+            return postDto;
+        }return null;
+    }
+
+    public Long getUserIdByRequest(HttpServletRequest request){
+        return  userService.findByUsername(
+                jwtAccessTokenProvider.getUsername(
+                        jwtAccessTokenProvider.resolveToken(request)
+                )
+        ).getId();
+    }
+
+
 }

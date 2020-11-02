@@ -1,6 +1,7 @@
 package org.kirrilf.service;
 
 
+import org.kirrilf.dto.PostDto;
 import org.kirrilf.model.Post;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,5 +19,6 @@ public interface PostService {
 
     Post update(String text, Long postId, HttpServletRequest request);
 
+    PostDto like(Long id, HttpServletRequest request);
 
 }

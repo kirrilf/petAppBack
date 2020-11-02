@@ -2,6 +2,8 @@ package org.kirrilf.model;
 
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -17,6 +19,13 @@ public class Post extends BaseEntity {
 
     private String fileName;
 
+    @ManyToMany
+    @JoinTable(
+            name = "post_likes",
+            joinColumns = { @JoinColumn(name = "post_id") },
+            inverseJoinColumns = { @JoinColumn(name = "user_id")}
+    )
+    private Set<User> likes = new HashSet<>();
 
     public String getText() {
         return text;
@@ -40,6 +49,14 @@ public class Post extends BaseEntity {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public Set<User> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<User> likes) {
+        this.likes = likes;
     }
 
     @Override

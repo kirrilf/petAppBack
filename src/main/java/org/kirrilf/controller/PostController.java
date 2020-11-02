@@ -35,11 +35,6 @@ public class PostController {
     private String uploadPath;
 
 
-    //@RequestMapping(value="/upload", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PostMapping(value = "/upload", consumes = "multipart/form-data")
-    public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        return new ResponseEntity<>("File is uploaded successfully" + file.getOriginalFilename(), HttpStatus.OK);
-    }
 
     @GetMapping
     public ResponseEntity<List<PostDto>> allPosts() {
@@ -98,6 +93,12 @@ public class PostController {
         postService.delete(id);
         logger.debug("Delete post with id: " + id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/like")
+    public ResponseEntity<PostDto> like(@PathVariable(name = "id") Long id, HttpServletRequest request){
+        PostDto postDto = postService.like(id, request);
+        return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
 
 }
