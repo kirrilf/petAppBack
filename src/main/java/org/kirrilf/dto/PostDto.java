@@ -6,6 +6,8 @@ import org.kirrilf.model.Post;
 import org.kirrilf.model.User;
 import org.kirrilf.repository.UserRepository;
 import org.kirrilf.service.UserService;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +17,7 @@ public class PostDto {
     private Long id;
     private String text;
     private Long authorId;
-
+    private String fileName;
 
 
     public Post toPost(){
@@ -30,6 +32,7 @@ public class PostDto {
         postDto.setId(post.getId());
         postDto.setText(post.getText());
         postDto.setAuthorId(post.getAuthor().getId());
+        postDto.setFileName(post.getFilename());
         return postDto;
     }
 
@@ -56,6 +59,14 @@ public class PostDto {
 
     public void setAuthorId(Long authorId) {
         this.authorId = authorId;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     @Override

@@ -5,13 +5,18 @@ import org.apache.log4j.Logger;
 import org.kirrilf.dto.PostDto;
 import org.kirrilf.model.Post;
 import org.kirrilf.service.PostService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/posts")
@@ -26,6 +31,15 @@ public class PostController {
         this.postService = postService;
     }
 
+    @Value("${upload.path}")
+    private String uploadPath;
+
+
+    //@RequestMapping(value="/upload", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+        return new ResponseEntity<>("File is uploaded successfully" + file.getOriginalFilename(), HttpStatus.OK);
+    }
 
     @GetMapping
     public ResponseEntity<List<PostDto>> allPosts() {
@@ -39,9 +53,25 @@ public class PostController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<PostDto> create(@RequestBody PostDto postDto, HttpServletRequest request) {
-        Post post = postDto.toPost();
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<PostDto> create(@RequestParam String text,
+                                          @RequestParam("file") MultipartFile file,
+                                          HttpServletRequest request
+    ) throws IOException {
+        Post post = new Post();
+        post.setText(text);
+        if (file != null) {
+            File uploadDir = new File(uploadPath);
+            if(!uploadDir.exists()){
+                uploadDir.mkdir();
+            }
+            String uuidFile = UUID.randomUUID().toString();
+            String resultNameFile = uuidFile + "." + file.getOriginalFilename();
+            file.transferTo(new File(uploadPath + "/" +resultNameFile));
+            post.setFilename(resultNameFile);
+        }
+
+
         PostDto result = PostDto.fromPost(postService.add(post, request));
         logger.debug("Create new post: " + post.getText() + "With author " + post.getAuthor());
         return new ResponseEntity<>(result, HttpStatus.OK);

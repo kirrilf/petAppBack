@@ -2,7 +2,19 @@
   "properties": [
     {
       "name": "jwt.token.secret",
-      "type": "java.lang.String",
-      "description": "Description for jwt.token.secret."
-  }
-] }
+      "type": "java.lang.String"
+    },
+    {
+      "name": "upload.path",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "jwt.access.token.expired.sec",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "jwt.refresh.token.expired.sec",
+      "type": "java.lang.Integer"
+    }
+  ]
+}

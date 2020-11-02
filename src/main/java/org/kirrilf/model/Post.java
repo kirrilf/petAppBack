@@ -14,6 +14,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User author;
 
+    private String filename;
+
     public String getText() {
         return text;
     }
@@ -28,6 +30,14 @@ public class Post extends BaseEntity {
 
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     @Override
