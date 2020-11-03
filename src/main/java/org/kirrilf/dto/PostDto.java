@@ -4,6 +4,7 @@ package org.kirrilf.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.kirrilf.model.Post;
 import org.kirrilf.service.UserService;
+import org.springframework.web.multipart.MultipartFile;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDto {
@@ -14,6 +15,7 @@ public class PostDto {
     private String fileName;
     private int count;
     private Boolean meLiked;
+    private MultipartFile file;
 
 
     public Post toPost(){
@@ -85,6 +87,14 @@ public class PostDto {
 
     public void setMeLiked(Boolean meLiked) {
         this.meLiked = meLiked;
+    }
+
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
 
     @Override

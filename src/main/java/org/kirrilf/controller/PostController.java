@@ -35,7 +35,6 @@ public class PostController {
     private String uploadPath;
 
 
-
     @GetMapping
     public ResponseEntity<List<PostDto>> allPosts() {
         List<Post> posts = postService.getAll();
@@ -50,9 +49,8 @@ public class PostController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<PostDto> create(@RequestParam String text,
-                                          @RequestParam("file") MultipartFile file,
-                                          HttpServletRequest request
-    ) throws IOException {
+                                          @RequestParam(value = "file", required = false) MultipartFile file,
+                                          HttpServletRequest request) throws IOException {
         Post post = new Post();
         post.setText(text);
         if (file != null && file.getOriginalFilename() != null) {
@@ -61,7 +59,6 @@ public class PostController {
             String resultNameFile = uuidFile + "." + file.getOriginalFilename();
             file.transferTo(new File(uploadPath + "/" + resultNameFile));
             post.setFileName(resultNameFile);
-
         }
 
 
@@ -81,10 +78,22 @@ public class PostController {
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id, @RequestBody PostDto postDtoText, HttpServletRequest request) {
-        PostDto postDto = PostDto.fromPost(postService.update(postDtoText.getText(), id, request));
-        logger.debug("Update post with id: " + id + " and text " + postDtoText.getText());
+    @PutMapping(value = "/{id}",consumes = "multipart/form-data")
+    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id,
+                                              @RequestParam String text,
+                                              @RequestParam(value = "file", required = false) MultipartFile file,
+                                              HttpServletRequest request) throws IOException {
+
+        String resultNameFile = null;
+        if (file != null && file.getOriginalFilename() != null) {
+            File uploadDir = new File(uploadPath);
+            String uuidFile = UUID.randomUUID().toString();
+            resultNameFile = uuidFile + "." + file.getOriginalFilename();
+            file.transferTo(new File(uploadPath + "/" + resultNameFile));
+        }
+
+        PostDto postDto = PostDto.fromPost(postService.update(text,resultNameFile,id, request));
+        logger.debug("Update post with id: " + id + " and text " + text);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
 
@@ -96,7 +105,7 @@ public class PostController {
     }
 
     @GetMapping(value = "/{id}/like")
-    public ResponseEntity<PostDto> like(@PathVariable(name = "id") Long id, HttpServletRequest request){
+    public ResponseEntity<PostDto> like(@PathVariable(name = "id") Long id, HttpServletRequest request) {
         PostDto postDto = postService.like(id, request);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }

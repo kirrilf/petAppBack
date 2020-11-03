@@ -30,7 +30,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     private static final String ADMIN_ENDPOINT = "/api/admin/**";
     private static final String LOGIN_ENDPOINT = "/api/auth/login";
     private static final String REGISTRATION_ENDPOINT = "/api/registration";
-    private static final String POST_ENDPOINT = "/api/posts";
+    private static final String IMG_ENDPOINT = "/api/img/***";
+
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -64,9 +65,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT).permitAll()
+                .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT, IMG_ENDPOINT).permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
-                .antMatchers(POST_ENDPOINT).hasRole("USER")
+                //.antMatchers(POST_ENDPOINT).hasRole("USER")
                 .anyRequest().authenticated().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -83,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/img/**")
+        registry.addResourceHandler("/api/img/**")
                 .addResourceLocations("file://" + uploadPath + "/");
     }
 

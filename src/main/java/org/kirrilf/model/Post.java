@@ -17,7 +17,9 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User author;
 
+    @Column(name = "filename")
     private String fileName;
+
 
     @ManyToMany
     @JoinTable(
@@ -43,6 +45,14 @@ public class Post extends BaseEntity {
         this.author = author;
     }
 
+    public Set<User> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<User> likes) {
+        this.likes = likes;
+    }
+
     public String getFileName() {
         return fileName;
     }
@@ -51,13 +61,6 @@ public class Post extends BaseEntity {
         this.fileName = fileName;
     }
 
-    public Set<User> getLikes() {
-        return likes;
-    }
-
-    public void setLikes(Set<User> likes) {
-        this.likes = likes;
-    }
 
     @Override
     public String toString() {

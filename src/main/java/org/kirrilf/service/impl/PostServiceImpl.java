@@ -56,7 +56,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post update(String text, Long postId, HttpServletRequest request) {
+    public Post update(String text,String fileName, Long postId, HttpServletRequest request) {
         Long userId = userService.findByUsername(
                 jwtAccessTokenProvider.getUsername(
                         jwtAccessTokenProvider.resolveToken(request)
@@ -68,6 +68,9 @@ public class PostServiceImpl implements PostService {
         }
         postFromBb.setText(text);
         postFromBb.setUpdated(new Date());
+        if(fileName != null){
+         postFromBb.setFileName(fileName);
+        }
         return postRepository.save(postFromBb);
     }
 

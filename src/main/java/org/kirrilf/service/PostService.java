@@ -17,7 +17,7 @@ public interface PostService {
 
     void delete(Long id);
 
-    Post update(String text, Long postId, HttpServletRequest request);
+    Post update(String text, String fileName, Long postId, HttpServletRequest request);
 
     PostDto like(Long id, HttpServletRequest request);
 
