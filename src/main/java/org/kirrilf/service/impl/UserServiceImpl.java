@@ -1,5 +1,6 @@
 package org.kirrilf.service.impl;
 
+import org.kirrilf.model.Post;
 import org.kirrilf.model.Role;
 import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
@@ -56,6 +57,8 @@ public class UserServiceImpl implements UserService {
 
         return null;
     }
+
+
 
     @Override
     public List<User> getAll() {

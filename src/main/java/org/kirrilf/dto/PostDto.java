@@ -15,8 +15,6 @@ public class PostDto {
     private String fileName;
     private int count;
     private Boolean meLiked;
-    private MultipartFile file;
-
 
     public Post toPost(){
         Post post = new Post();
@@ -89,13 +87,6 @@ public class PostDto {
         this.meLiked = meLiked;
     }
 
-    public MultipartFile getFile() {
-        return file;
-    }
-
-    public void setFile(MultipartFile file) {
-        this.file = file;
-    }
 
     @Override
     public String toString() {

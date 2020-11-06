@@ -46,6 +46,12 @@ public class PostController {
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<PostDto> getOnePost(@PathVariable(name = "id") Long id){
+        Post post = postService.getOnePost(id);
+        return new ResponseEntity<>(PostDto.fromPost(post), HttpStatus.OK);
+    }
+
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<PostDto> create(@RequestParam String text,
@@ -78,6 +84,8 @@ public class PostController {
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
 
+
+
     @PutMapping(value = "/{id}",consumes = "multipart/form-data")
     public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id,
                                               @RequestParam String text,
@@ -96,6 +104,8 @@ public class PostController {
         logger.debug("Update post with id: " + id + " and text " + text);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
+
+
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deletePost(@PathVariable(name = "id") Long id) {

@@ -15,6 +15,8 @@ public interface PostService {
 
     List<Post> getAllUserPosts(Long userId);
 
+    Post getOnePost(Long postID);
+
     void delete(Long id);
 
     Post update(String text, String fileName, Long postId, HttpServletRequest request);

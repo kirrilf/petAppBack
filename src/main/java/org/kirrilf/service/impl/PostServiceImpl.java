@@ -41,6 +41,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Post getOnePost(Long postID) {
+        return postRepository.findById(postID).orElse(null);
+    }
+
+    @Override
     public List<Post> getAll() {
         return postRepository.findAll();
     }
