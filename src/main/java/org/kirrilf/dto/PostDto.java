@@ -4,6 +4,7 @@ package org.kirrilf.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
+import org.kirrilf.model.User;
 import org.kirrilf.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,14 +31,14 @@ public class PostDto {
         return post;
     }
 
-    public static PostDto fromPost(Post post, List<Image> images){
+    public static PostDto fromPost(Post post, List<Image> images, User me){
         PostDto postDto = new PostDto();
         postDto.setId(post.getId());
         postDto.setText(post.getText());
         postDto.setAuthorId(post.getAuthor().getId());
         postDto.setCount(post.getLikes().size());
         boolean meLiked = false;
-        if(post.getLikes().contains(post.getAuthor())){
+        if(post.getLikes().contains(me)){
             meLiked = true;
         }
         postDto.setMeLiked(meLiked);

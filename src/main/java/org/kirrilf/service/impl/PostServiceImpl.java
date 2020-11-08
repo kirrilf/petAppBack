@@ -82,12 +82,19 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post update(String text, Long postId, HttpServletRequest request) {
-        Long userId = userService.findByUsername(
+    public User getUserByRequest(HttpServletRequest request){
+        return userService.findByUsername(
                 jwtAccessTokenProvider.getUsername(
                         jwtAccessTokenProvider.resolveToken(request)
                 )
-        ).getId();
+        );
+    }
+
+
+    @Override
+    public Post update(String text, Long postId, HttpServletRequest request) {
+        Long userId =getUserByRequest(request).getId();
+
         Post postFromBb = postRepository.findById(postId).orElse(null);
         if (postFromBb == null || !postFromBb.getAuthor().getId().equals(userId)) {
             return null;
@@ -110,9 +117,9 @@ public class PostServiceImpl implements PostService {
     public PostDto like(Long id, HttpServletRequest request) {
         Post post = postRepository.findById(id).orElse(null);
         if (post != null) {
-            PostDto postDto = PostDto.fromPost(post, imageRepository.findByPost(post));
+            User user = userService.findById(getUserByRequest(request).getId());
+            PostDto postDto = PostDto.fromPost(post, imageRepository.findByPost(post), user);
             Set<User> likes = post.getLikes();
-            User user = userService.findById(getUserIdByRequest(request));
             if (likes.contains(user)) {
                 likes.remove(user);
                 postDto.setMeLiked(false);
@@ -128,13 +135,7 @@ public class PostServiceImpl implements PostService {
         return null;
     }
 
-    public Long getUserIdByRequest(HttpServletRequest request) {
-        return userService.findByUsername(
-                jwtAccessTokenProvider.getUsername(
-                        jwtAccessTokenProvider.resolveToken(request)
-                )
-        ).getId();
-    }
+
 
 
 }

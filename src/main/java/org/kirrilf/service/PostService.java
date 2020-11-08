@@ -4,6 +4,7 @@ package org.kirrilf.service;
 import org.kirrilf.dto.PostDto;
 import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
+import org.kirrilf.model.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -29,4 +30,5 @@ public interface PostService {
 
     List<Image> getAllFileNamesByPost(Post post);
 
+    User getUserByRequest(HttpServletRequest request);
 }

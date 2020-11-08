@@ -35,20 +35,23 @@ public class PostController {
 
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> allPosts() {
+    public ResponseEntity<List<PostDto>> allPosts(HttpServletRequest request) {
         List<Post> posts = postService.getAll();
         logger.debug("Get all posts");
         List<PostDto> postsDto = new ArrayList<>();
         for (Post i : posts) {
-            postsDto.add(PostDto.fromPost(i, postService.getAllFileNamesByPost(i)));
+            postsDto.add(PostDto.fromPost(i, postService.getAllFileNamesByPost(i), postService.getUserByRequest(request)));
         }
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PostDto> getOnePost(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<PostDto> getOnePost(@PathVariable(name = "id") Long id,
+                                              HttpServletRequest request) {
         Post post = postService.getOnePost(id);
-        return new ResponseEntity<>(PostDto.fromPost(post, postService.getAllFileNamesByPost(post)), HttpStatus.OK);
+        return new ResponseEntity<>(PostDto.fromPost(post,
+                        postService.getAllFileNamesByPost(post),
+                        postService.getUserByRequest(request)), HttpStatus.OK);
     }
 
 
@@ -61,7 +64,7 @@ public class PostController {
 
         List<Image> images = saveImages(files);
 
-        PostDto result = PostDto.fromPost(postService.add(post, images, request), images);
+        PostDto result = PostDto.fromPost(postService.add(post, images,request), images,  postService.getUserByRequest(request));
         logger.debug("Create new post: " + post.getText() + "With author " + post.getAuthor());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -83,11 +86,12 @@ public class PostController {
     }
 
     @GetMapping(value = "/user/{id}")
-    public ResponseEntity<List<PostDto>> allUserPosts(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<List<PostDto>> allUserPosts(@PathVariable(name = "id") Long id,
+                                                      HttpServletRequest request) {
         List<Post> posts = postService.getAllUserPosts(id);
         List<PostDto> postsDto = new ArrayList<>();
         for (Post post : posts) {
-            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post)));
+            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post),  postService.getUserByRequest(request)));
         }
         logger.debug("Get all post user with id: " + id);
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
@@ -100,7 +104,9 @@ public class PostController {
                                               HttpServletRequest request) throws IOException {
 
         Post postUpdate = postService.update(text, id, request);
-        PostDto postDto = PostDto.fromPost(postUpdate, postService.getAllFileNamesByPost(postUpdate));
+        PostDto postDto = PostDto.fromPost(postUpdate,
+                postService.getAllFileNamesByPost(postUpdate),
+                postService.getUserByRequest(request));
         logger.debug("Update post with id: " + id + " and text " + text);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }

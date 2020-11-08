@@ -44,6 +44,7 @@ public class AuthenticationController {
         try {
             String username = requestDto.getUsername();
             logger.debug("Get requestDto for user"+ requestDto.getUsername());
+            String m = requestDto.getPassword();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
             User user = userService.findByUsername(username);
 

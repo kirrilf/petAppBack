@@ -21,4 +21,5 @@ public interface UserService {
     String getAccessToken(User user);
 
     String getRefreshToken(User user, HttpServletRequest req) throws AuthException;
+
 }

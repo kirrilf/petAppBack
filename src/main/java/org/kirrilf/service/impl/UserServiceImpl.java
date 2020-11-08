@@ -92,6 +92,7 @@ public class UserServiceImpl implements UserService {
         return jwtAccessTokenProvider.createToken(user.getUsername(), user.getRoles());
     }
 
+
     @Override
     public String getRefreshToken(User user, HttpServletRequest req) throws AuthException {
         return jwtRefreshTokenProvider.createToken(user.getUsername(), jwtRefreshTokenProvider.resolveFingerprint(req));
