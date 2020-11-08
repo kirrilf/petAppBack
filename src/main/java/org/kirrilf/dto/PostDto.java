@@ -8,10 +8,7 @@ import org.kirrilf.model.User;
 import org.kirrilf.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDto {
@@ -21,6 +18,7 @@ public class PostDto {
     private Long authorId;
     private int count;
     private Boolean meLiked;
+    private Long updateDate;
     private List<String> fileNames;
 
 
@@ -37,6 +35,7 @@ public class PostDto {
         postDto.setText(post.getText());
         postDto.setAuthorId(post.getAuthor().getId());
         postDto.setCount(post.getLikes().size());
+        postDto.setUpdateDate(post.getUpdated().getTime()/1000);
         boolean meLiked = false;
         if(post.getLikes().contains(me)){
             meLiked = true;
@@ -99,6 +98,14 @@ public class PostDto {
 
     public void setFileNames(List<String> fileNames) {
         this.fileNames = fileNames;
+    }
+
+    public Long getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Long updateDate) {
+        this.updateDate = updateDate;
     }
 
     @Override

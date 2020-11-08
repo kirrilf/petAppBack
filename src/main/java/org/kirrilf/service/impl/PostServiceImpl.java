@@ -107,6 +107,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deleteAllImagesByPost(Post post) {
+        //TODO delete images in storage
         List<Image> images = imageRepository.findByPost(post);
         for (Image i : images) {
             imageRepository.delete(i);
