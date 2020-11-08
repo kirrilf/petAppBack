@@ -2,6 +2,7 @@ package org.kirrilf.controller;
 
 import org.apache.log4j.Logger;
 import org.kirrilf.dto.AuthenticationUserDto;
+import org.kirrilf.dto.UserDto;
 import org.kirrilf.model.User;
 import org.kirrilf.security.jwt.AuthException;
 import org.kirrilf.service.UserService;
@@ -58,7 +59,7 @@ public class AuthenticationController {
 
 
             Map<Object, Object> res = new HashMap<>();
-            res.put("username", username);
+            res.put("id", user.getId());
             res.put("access_token", accessToken);
             res.put("refresh_token", refreshToken);
             logger.info("Authentication user: "+ username);

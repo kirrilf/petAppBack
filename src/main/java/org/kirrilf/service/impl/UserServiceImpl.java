@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
         user.setStatus(Status.ACTIVE);
         user.setCreated(new Date());
         user.setUpdated(new Date());
+        user.setUserpick("none_ava.png");
 
         try {
             return userRepository.save(user);

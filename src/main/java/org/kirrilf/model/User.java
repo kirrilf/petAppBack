@@ -23,6 +23,9 @@ public class User extends BaseEntity {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "userpick")
+    private String userpick;
     
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -79,6 +82,11 @@ public class User extends BaseEntity {
         this.roles = roles;
     }
 
+    public String getUserpick() {
+        return userpick;
+    }
 
-
+    public void setUserpick(String userpick) {
+        this.userpick = userpick;
+    }
 }

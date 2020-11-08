@@ -12,6 +12,7 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
+    private String userpick;
 
     public User toUser(){
         User user = new User();
@@ -20,7 +21,7 @@ public class UserDto {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-
+        user.setUserpick(userpick);
         return user;
     }
 
@@ -31,6 +32,7 @@ public class UserDto {
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.setEmail(user.getEmail());
+        userDto.setUserpick(user.getUserpick());
 
         return userDto;
     }
@@ -101,5 +103,13 @@ public class UserDto {
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    public String getUserpick() {
+        return userpick;
+    }
+
+    public void setUserpick(String userpick) {
+        this.userpick = userpick;
     }
 }
