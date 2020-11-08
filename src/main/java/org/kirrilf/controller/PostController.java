@@ -3,6 +3,7 @@ package org.kirrilf.controller;
 
 import org.apache.log4j.Logger;
 import org.kirrilf.dto.PostDto;
+import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
 import org.kirrilf.service.PostService;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/api/posts")
@@ -41,36 +40,46 @@ public class PostController {
         logger.debug("Get all posts");
         List<PostDto> postsDto = new ArrayList<>();
         for (Post i : posts) {
-            postsDto.add(PostDto.fromPost(i));
+            postsDto.add(PostDto.fromPost(i, postService.getAllFileNamesByPost(i)));
         }
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PostDto> getOnePost(@PathVariable(name = "id") Long id){
+    public ResponseEntity<PostDto> getOnePost(@PathVariable(name = "id") Long id) {
         Post post = postService.getOnePost(id);
-        return new ResponseEntity<>(PostDto.fromPost(post), HttpStatus.OK);
+        return new ResponseEntity<>(PostDto.fromPost(post, postService.getAllFileNamesByPost(post)), HttpStatus.OK);
     }
 
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<PostDto> create(@RequestParam String text,
-                                          @RequestParam(value = "file", required = false) MultipartFile file,
+                                          @RequestParam(value = "file") MultipartFile[] files,
                                           HttpServletRequest request) throws IOException {
         Post post = new Post();
         post.setText(text);
-        if (file != null && file.getOriginalFilename() != null) {
-            File uploadDir = new File(uploadPath);
-            String uuidFile = UUID.randomUUID().toString();
-            String resultNameFile = uuidFile + "." + file.getOriginalFilename();
-            file.transferTo(new File(uploadPath + "/" + resultNameFile));
-            post.setFileName(resultNameFile);
-        }
 
+        List<Image> images = saveImages(files);
 
-        PostDto result = PostDto.fromPost(postService.add(post, request));
+        PostDto result = PostDto.fromPost(postService.add(post, images, request), images);
         logger.debug("Create new post: " + post.getText() + "With author " + post.getAuthor());
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    private List<Image> saveImages(@RequestParam("file") MultipartFile[] files) throws IOException {
+        List<Image> images = new LinkedList<>();
+        File uploadDir = new File(uploadPath);
+        for (MultipartFile i : files) {
+            if (i.getOriginalFilename() != null) {
+                String uuidFile = UUID.randomUUID().toString();
+                String resultNameFile = uuidFile + "." + i.getOriginalFilename();
+                i.transferTo(new File(uploadPath + "/" + resultNameFile));
+                Image image = new Image();
+                image.setFileName(resultNameFile);
+                images.add(image);
+            }
+        }
+        return images;
     }
 
     @GetMapping(value = "/user/{id}")
@@ -78,33 +87,23 @@ public class PostController {
         List<Post> posts = postService.getAllUserPosts(id);
         List<PostDto> postsDto = new ArrayList<>();
         for (Post post : posts) {
-            postsDto.add(PostDto.fromPost(post));
+            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post)));
         }
         logger.debug("Get all post user with id: " + id);
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
 
 
-
-    @PutMapping(value = "/{id}",consumes = "multipart/form-data")
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id,
                                               @RequestParam String text,
-                                              @RequestParam(value = "file", required = false) MultipartFile file,
                                               HttpServletRequest request) throws IOException {
 
-        String resultNameFile = null;
-        if (file != null && file.getOriginalFilename() != null) {
-            File uploadDir = new File(uploadPath);
-            String uuidFile = UUID.randomUUID().toString();
-            resultNameFile = uuidFile + "." + file.getOriginalFilename();
-            file.transferTo(new File(uploadPath + "/" + resultNameFile));
-        }
-
-        PostDto postDto = PostDto.fromPost(postService.update(text,resultNameFile,id, request));
+        Post postUpdate = postService.update(text, id, request);
+        PostDto postDto = PostDto.fromPost(postUpdate, postService.getAllFileNamesByPost(postUpdate));
         logger.debug("Update post with id: " + id + " and text " + text);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
-
 
 
     @DeleteMapping(value = "/{id}")

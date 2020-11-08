@@ -2,9 +2,15 @@ package org.kirrilf.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
 import org.kirrilf.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDto {
@@ -12,9 +18,10 @@ public class PostDto {
     private Long id;
     private String text;
     private Long authorId;
-    private String fileName;
     private int count;
     private Boolean meLiked;
+    private List<String> fileNames;
+
 
     public Post toPost(){
         Post post = new Post();
@@ -23,20 +30,25 @@ public class PostDto {
         return post;
     }
 
-    public static PostDto fromPost(Post post){
+    public static PostDto fromPost(Post post, List<Image> images){
         PostDto postDto = new PostDto();
         postDto.setId(post.getId());
         postDto.setText(post.getText());
         postDto.setAuthorId(post.getAuthor().getId());
-        postDto.setFileName(post.getFileName());
         postDto.setCount(post.getLikes().size());
         boolean meLiked = false;
         if(post.getLikes().contains(post.getAuthor())){
             meLiked = true;
         }
         postDto.setMeLiked(meLiked);
+        List<String> fileNames = new LinkedList<>();
+        for(Image i : images){
+            fileNames.add(i.getFileName());
+        }
+        postDto.setFileNames(fileNames);
         return postDto;
     }
+
 
     public Long getId() {
         return id;
@@ -63,13 +75,6 @@ public class PostDto {
         this.authorId = authorId;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
 
     public int getCount() {
         return count;
@@ -87,6 +92,13 @@ public class PostDto {
         this.meLiked = meLiked;
     }
 
+    public List<String> getFileNames() {
+        return fileNames;
+    }
+
+    public void setFileNames(List<String> fileNames) {
+        this.fileNames = fileNames;
+    }
 
     @Override
     public String toString() {

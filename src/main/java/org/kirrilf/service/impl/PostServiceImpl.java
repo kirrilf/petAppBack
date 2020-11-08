@@ -1,9 +1,11 @@
 package org.kirrilf.service.impl;
 
 import org.kirrilf.dto.PostDto;
+import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
 import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
+import org.kirrilf.repository.ImageRepository;
 import org.kirrilf.repository.PostRepository;
 import org.kirrilf.security.jwt.JwtAccessTokenProvider;
 import org.kirrilf.service.PostService;
@@ -21,23 +23,41 @@ public class PostServiceImpl implements PostService {
     private final JwtAccessTokenProvider jwtAccessTokenProvider;
     private final PostRepository postRepository;
     private final UserService userService;
+    private final ImageRepository imageRepository;
 
-    public PostServiceImpl(JwtAccessTokenProvider jwtAccessTokenProvider, PostRepository postRepository, UserService userService) {
+    public PostServiceImpl(JwtAccessTokenProvider jwtAccessTokenProvider,
+                           PostRepository postRepository,
+                           UserService userService,
+                           ImageRepository imageRepository) {
         this.jwtAccessTokenProvider = jwtAccessTokenProvider;
         this.postRepository = postRepository;
         this.userService = userService;
+        this.imageRepository = imageRepository;
 
     }
 
     @Override
-    public Post add(Post post, HttpServletRequest request) {
+    public Post add(Post post, List<Image> images, HttpServletRequest request) {
+
         post.setStatus(Status.ACTIVE);
         post.setCreated(new Date());
         post.setUpdated(new Date());
         post.setAuthor(userService.findByUsername(
                 jwtAccessTokenProvider.getUsername(
-                    jwtAccessTokenProvider.resolveToken(request))));
-        return postRepository.save(post);
+                        jwtAccessTokenProvider.resolveToken(request))));
+        Post createPost = postRepository.save(post);
+        for (Image i : images) {
+            i.setCreated(new Date());
+            i.setUpdated(new Date());
+            i.setPost(createPost);
+            imageRepository.save(i);
+        }
+        return createPost;
+    }
+
+    @Override
+    public List<Image> getAllFileNamesByPost(Post post) {
+        return imageRepository.findByPost(post);
     }
 
     @Override
@@ -57,39 +77,46 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void delete(Long id) {
+        deleteAllImagesByPost(postRepository.findById(id).orElse(null));
         postRepository.deleteById(id);
     }
 
     @Override
-    public Post update(String text,String fileName, Long postId, HttpServletRequest request) {
+    public Post update(String text, Long postId, HttpServletRequest request) {
         Long userId = userService.findByUsername(
                 jwtAccessTokenProvider.getUsername(
                         jwtAccessTokenProvider.resolveToken(request)
                 )
         ).getId();
         Post postFromBb = postRepository.findById(postId).orElse(null);
-        if(postFromBb == null || !postFromBb.getAuthor().getId().equals(userId)){
+        if (postFromBb == null || !postFromBb.getAuthor().getId().equals(userId)) {
             return null;
         }
+
         postFromBb.setText(text);
         postFromBb.setUpdated(new Date());
-        if(fileName != null){
-         postFromBb.setFileName(fileName);
-        }
         return postRepository.save(postFromBb);
+    }
+
+    @Override
+    public void deleteAllImagesByPost(Post post) {
+        List<Image> images = imageRepository.findByPost(post);
+        for (Image i : images) {
+            imageRepository.delete(i);
+        }
     }
 
     @Override
     public PostDto like(Long id, HttpServletRequest request) {
         Post post = postRepository.findById(id).orElse(null);
-        if(post != null) {
-            PostDto postDto = PostDto.fromPost(post);
+        if (post != null) {
+            PostDto postDto = PostDto.fromPost(post, imageRepository.findByPost(post));
             Set<User> likes = post.getLikes();
             User user = userService.findById(getUserIdByRequest(request));
-            if(likes.contains(user)){
+            if (likes.contains(user)) {
                 likes.remove(user);
                 postDto.setMeLiked(false);
-            }else {
+            } else {
                 likes.add(user);
                 postDto.setMeLiked(true);
             }
@@ -97,11 +124,12 @@ public class PostServiceImpl implements PostService {
             postDto.setCount(likes.size());
             postRepository.save(post);
             return postDto;
-        }return null;
+        }
+        return null;
     }
 
-    public Long getUserIdByRequest(HttpServletRequest request){
-        return  userService.findByUsername(
+    public Long getUserIdByRequest(HttpServletRequest request) {
+        return userService.findByUsername(
                 jwtAccessTokenProvider.getUsername(
                         jwtAccessTokenProvider.resolveToken(request)
                 )
