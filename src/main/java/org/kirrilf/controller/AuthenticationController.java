@@ -2,7 +2,6 @@ package org.kirrilf.controller;
 
 import org.apache.log4j.Logger;
 import org.kirrilf.dto.AuthenticationUserDto;
-import org.kirrilf.dto.UserDto;
 import org.kirrilf.model.User;
 import org.kirrilf.security.jwt.AuthException;
 import org.kirrilf.service.UserService;

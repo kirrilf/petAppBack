@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+ 
 public class PostDto {
 
     private Long id;

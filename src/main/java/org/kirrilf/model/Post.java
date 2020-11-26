@@ -3,6 +3,7 @@ package org.kirrilf.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -17,6 +18,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User author;
 
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Comment> comments;
 
     @ManyToMany
     @JoinTable(
