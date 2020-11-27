@@ -1,6 +1,6 @@
-#Pet Project Backend
+# Pet Project Backend
 
-##Описание Api
+## Описание Api
 Безопасность основана на [JWT токене](https://jwt.io/).  
 * Регистрация 
 * Авторизация
@@ -15,7 +15,7 @@
 
 
 
-###Для регистрации используется адрес **(POST) [/api/registration]()** 
+### Для регистрации используется адрес **(POST) [/api/registration]()** 
 
 Пример запроса:
 ```
@@ -39,7 +39,7 @@
         "userpick": "none_ava.png"
     }
 ```
-###Для авторизации используется адрес **(POST) [/api/auth/login]()**
+### Для авторизации используется адрес **(POST) [/api/auth/login]()**
 
 Пример запроса:
 
@@ -61,7 +61,7 @@
 ```
 В качестве ответа получаем пару токенов **access** и **refresh**
 
-####Access токен 
+#### Access токен 
 Он живет 10 минут, после он становится не активным для получения новой пары access и refresh токенов 
 надо воспользоваться адресом **(GET) [/api/auth/refresh]()** где в header "Authorization" будет передан
 refresh токен, а также Fingerprint
@@ -96,8 +96,8 @@ exp - время протухания токена
 Authorization : Bearer_eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0Iiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTYwNjMyNTM1OCwiZXhwIjoxNjA2MzI1OTU4fQ.GcWUgYOKTXDc7mCzbn20Kd5GHC68TZzAHn8kWa-8GsE
 ```
 
-###Работа с постами
-####Получение постов
+### Работа с постами
+#### Получение постов
 
 (GET) [/api/posts]()
 
@@ -160,7 +160,7 @@ Authorization : Bearer_eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0Iiwicm9sZXMiOlsiUk9M
 ```
 Для получения фотографий используется адрес: (GET) [/api/img/]()
 
-####Для редактирования поста используется адрес (PUT) [/api/posts/{post_id}]()
+#### Для редактирования поста используется адрес (PUT) [/api/posts/{post_id}]()
 
 Пример запроса:
 [/api/posts/98]()
@@ -187,7 +187,7 @@ Authorization : Bearer_eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0Iiwicm9sZXMiOlsiUk9M
 }
 ```
 
-####Для создания поста используется адрес (POST) [/api/posts/]()
+#### Для создания поста используется адрес (POST) [/api/posts/]()
 Нужно добавить header : ```"Content-Type": "multipart/form-data"```
 
 Пример запроса:
@@ -212,6 +212,6 @@ Authorization : Bearer_eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0Iiwicm9sZXMiOlsiUk9M
     "fileNames": ["...fileName1", "...fileName2"]
 }
 ```
-####Для удаления поста используется адрес (DELETE) [/api/posts/]()
+#### Для удаления поста используется адрес (DELETE) [/api/posts/]()
 
 
