@@ -18,6 +18,8 @@ public interface UserService {
 
     boolean delete(Long id);
 
+    User getUserByRequest(HttpServletRequest request);
+
     String getAccessToken(User user);
 
     String getRefreshToken(User user, HttpServletRequest req) throws AuthException;

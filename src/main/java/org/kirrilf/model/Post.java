@@ -19,7 +19,7 @@ public class Post extends BaseEntity {
     private User author;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
-    private List<Comment> comments;
+        private List<Comment> comments;
 
     @ManyToMany
     @JoinTable(

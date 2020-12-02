@@ -37,6 +37,8 @@ public class UserServiceImpl implements UserService {
         this.jwtRefreshTokenProvider = jwtRefreshTokenProvider;
     }
 
+
+
     @Override
     public User register(User user) {
         Role roleUser = roleRepository.findByName("ROLE_USER");
@@ -93,6 +95,14 @@ public class UserServiceImpl implements UserService {
         return jwtAccessTokenProvider.createToken(user.getUsername(), user.getRoles());
     }
 
+    @Override
+    public User getUserByRequest(HttpServletRequest request){
+        return findByUsername(
+                jwtAccessTokenProvider.getUsername(
+                        jwtAccessTokenProvider.resolveToken(request)
+                )
+        );
+    }
 
     @Override
     public String getRefreshToken(User user, HttpServletRequest req) throws AuthException {

@@ -30,5 +30,5 @@ public interface PostService {
 
     List<Image> getAllFileNamesByPost(Post post);
 
-    User getUserByRequest(HttpServletRequest request);
+
 }

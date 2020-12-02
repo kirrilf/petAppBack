@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @EntityGraph(attributePaths = {"comments"})
-    @NotNull
-    List<Comment> findAll();
+    @NotNull List<Comment> findAll();
+    List<Comment> getCommentsByPostId(Long id);
 }

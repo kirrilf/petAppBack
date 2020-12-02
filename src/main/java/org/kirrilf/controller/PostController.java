@@ -6,6 +6,7 @@ import org.kirrilf.dto.PostDto;
 import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
 import org.kirrilf.service.PostService;
+import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +24,13 @@ import java.util.*;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
 
     private static final Logger logger = Logger.getLogger(PostController.class);
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, UserService userService) {
         this.postService = postService;
+        this.userService = userService;
     }
 
     @Value("${upload.path}")
@@ -40,7 +43,7 @@ public class PostController {
         logger.debug("Get all posts");
         List<PostDto> postsDto = new ArrayList<>();
         for (Post i : posts) {
-            postsDto.add(PostDto.fromPost(i, postService.getAllFileNamesByPost(i), postService.getUserByRequest(request)));
+            postsDto.add(PostDto.fromPost(i, postService.getAllFileNamesByPost(i), userService.getUserByRequest(request)));
         }
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
     }
@@ -51,7 +54,7 @@ public class PostController {
         Post post = postService.getOnePost(id);
         return new ResponseEntity<>(PostDto.fromPost(post,
                         postService.getAllFileNamesByPost(post),
-                        postService.getUserByRequest(request)), HttpStatus.OK);
+                        userService.getUserByRequest(request)), HttpStatus.OK);
     }
 
 
@@ -64,7 +67,7 @@ public class PostController {
 
         List<Image> images = saveImages(files);
 
-        PostDto result = PostDto.fromPost(postService.add(post, images,request), images,  postService.getUserByRequest(request));
+        PostDto result = PostDto.fromPost(postService.add(post, images,request), images,  userService.getUserByRequest(request));
         logger.debug("Create new post: " + post.getText() + "With author " + post.getAuthor());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -91,7 +94,7 @@ public class PostController {
         List<Post> posts = postService.getAllUserPosts(id);
         List<PostDto> postsDto = new ArrayList<>();
         for (Post post : posts) {
-            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post),  postService.getUserByRequest(request)));
+            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post),  userService.getUserByRequest(request)));
         }
         logger.debug("Get all post user with id: " + id);
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
@@ -106,7 +109,7 @@ public class PostController {
         Post postUpdate = postService.update(text, id, request);
         PostDto postDto = PostDto.fromPost(postUpdate,
                 postService.getAllFileNamesByPost(postUpdate),
-                postService.getUserByRequest(request));
+                userService.getUserByRequest(request));
         logger.debug("Update post with id: " + id + " and text " + text);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
