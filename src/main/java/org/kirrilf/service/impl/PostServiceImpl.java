@@ -1,18 +1,23 @@
 package org.kirrilf.service.impl;
 
 import org.kirrilf.dto.PostDto;
+import org.kirrilf.dto.PostPageDto;
 import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
 import org.kirrilf.model.Status;
 import org.kirrilf.model.User;
+import org.kirrilf.repository.CommentRepository;
 import org.kirrilf.repository.ImageRepository;
 import org.kirrilf.repository.PostRepository;
 import org.kirrilf.security.jwt.JwtAccessTokenProvider;
 import org.kirrilf.service.PostService;
 import org.kirrilf.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -24,16 +29,18 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
+
 
     public PostServiceImpl(JwtAccessTokenProvider jwtAccessTokenProvider,
                            PostRepository postRepository,
                            UserService userService,
-                           ImageRepository imageRepository) {
+                           ImageRepository imageRepository, CommentRepository commentRepository) {
         this.jwtAccessTokenProvider = jwtAccessTokenProvider;
         this.postRepository = postRepository;
         this.userService = userService;
         this.imageRepository = imageRepository;
-
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -66,8 +73,19 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> getAll() {
-        return postRepository.findAll();
+    public PostPageDto getAll(Pageable pageable, HttpServletRequest request) {
+
+
+        Page<Post> postsPage = postRepository.findAll(pageable);
+        List<Post> posts = postsPage.getContent();
+        List<PostDto> postsDto = new ArrayList<>();
+        for (Post post : posts) {
+            postsDto.add(PostDto.fromPost(post, getAllFileNamesByPost(post),
+                    userService.getUserByRequest(request),
+                    commentRepository.findTop3ByPostOrderById(post)));
+        }
+
+        return new PostPageDto(postsDto, pageable.getPageNumber(), postsPage.getTotalPages());
     }
 
     @Override
@@ -110,7 +128,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id).orElse(null);
         if (post != null) {
             User user = userService.findById(userService.getUserByRequest(request).getId());
-            PostDto postDto = PostDto.fromPost(post, imageRepository.findByPost(post), user);
+            PostDto postDto = PostDto.fromPost(post, imageRepository.findByPost(post), user, commentRepository.findTop3ByPostOrderById(post));
             Set<User> likes = post.getLikes();
             if (likes.contains(user)) {
                 likes.remove(user);

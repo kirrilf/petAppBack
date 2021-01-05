@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -52,21 +51,21 @@ public class JwtRefreshTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInSeconds*1000);
+        Date validity = new Date(now.getTime() + validityInSeconds * 1000);
 
         String token = Jwts.builder()//
-                        .setClaims(claims)//
-                        .setIssuedAt(now)//
-                        .setExpiration(validity)//
-                        .signWith(SignatureAlgorithm.HS256, secret)//
-                        .compact();
+                .setClaims(claims)//
+                .setIssuedAt(now)//
+                .setExpiration(validity)//
+                .signWith(SignatureAlgorithm.HS256, secret)//
+                .compact();
 
         RefreshToken refreshToken = refreshTokenRepository.findByFingerprint(fingerprint);
-        if(refreshToken != null){
+        if (refreshToken != null) {
             refreshToken.setToken(token);
             refreshToken.setUpdated(new Date());
             refreshTokenRepository.save(refreshToken);
-        }else {
+        } else {
             RefreshToken newRefreshToken = new RefreshToken();
             newRefreshToken.setToken(token);
             newRefreshToken.setFingerprint(fingerprint);
@@ -80,7 +79,6 @@ public class JwtRefreshTokenProvider {
     }
 
 
-
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
@@ -92,23 +90,23 @@ public class JwtRefreshTokenProvider {
 
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
-            if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
             return bearerToken.substring(7);
         }
         return null;
     }
 
-    public String resolveFingerprint(HttpServletRequest req){
+    public String resolveFingerprint(HttpServletRequest req) {
         return req.getHeader("Fingerprint");
     }
 
     public boolean validateToken(String token, String fingerprint) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-             RefreshToken tokenBD = refreshTokenRepository.findByFingerprint(fingerprint);
-            if(tokenBD.getToken().equals(token) && tokenBD.getStatus() == Status.ACTIVE) {
+            RefreshToken tokenBD = refreshTokenRepository.findByFingerprint(fingerprint);
+            if (tokenBD.getToken().equals(token) && tokenBD.getStatus() == Status.ACTIVE) {
                 return !claims.getBody().getExpiration().before(new Date());
-            }else {
+            } else {
                 return false;
             }
         } catch (JwtException | IllegalArgumentException e) {
@@ -116,10 +114,10 @@ public class JwtRefreshTokenProvider {
         }
     }
 
-    public String getRefreshTokenFromCookie(HttpServletRequest req){
+    public String getRefreshTokenFromCookie(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
-        for (Cookie i : cookies){
-            if(i.getName().equals("refresh_token")){
+        for (Cookie i : cookies) {
+            if (i.getName().equals("refresh_token")) {
                 return i.getValue();
             }
         }

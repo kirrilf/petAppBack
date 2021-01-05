@@ -6,6 +6,8 @@ import org.kirrilf.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +25,9 @@ public class CommentController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<CommentDto> create(@RequestBody Comment comment, HttpServletRequest request) {
-        commentService.create(comment, request);
-        return new ResponseEntity<>(CommentDto.fromComment(comment), HttpStatus.OK);
+    @PostMapping(value = "/{id}")
+    public ResponseEntity<CommentDto> create(@PathVariable(name = "id") Long postId, @RequestBody Comment comment, HttpServletRequest request) {
+        return new ResponseEntity<>(CommentDto.fromComment(commentService.create(comment, postId, request)), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")
@@ -36,4 +37,8 @@ public class CommentController {
         comments.forEach(comment -> commentsDto.add(CommentDto.fromComment(comment)));
         return new ResponseEntity<>(commentsDto, HttpStatus.OK);
     }
+
+
+
+
 }

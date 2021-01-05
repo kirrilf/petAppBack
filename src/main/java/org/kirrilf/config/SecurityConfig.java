@@ -33,6 +33,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     private static final String LOGIN_ENDPOINT = "/api/auth/login";
     private static final String REGISTRATION_ENDPOINT = "/api/registration";
     private static final String IMG_ENDPOINT = "/api/img/***";
+    private static final String WEBSOCKET_COMMENT_ENDPOINT = "api/comment/**";
+    private static final String WEBSOCKET_ENDPOINT_1 = "/topic/**";
+    private static final String WEBSOCKET_ENDPOINT_2 = "/ws/**";
+    private static final String WEBSOCKET_ENDPOINT_3 = "/app/**";
 
 
     @Value("${upload.path}")
@@ -57,8 +61,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration);
         return source;
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedMethods("*")
+                .allowedOrigins("*")
+                .allowedHeaders("*");
     }
 
     @Override
@@ -67,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT, IMG_ENDPOINT).permitAll()
+                .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT, IMG_ENDPOINT, WEBSOCKET_ENDPOINT_1, WEBSOCKET_ENDPOINT_2, WEBSOCKET_ENDPOINT_3).permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
                 //.antMatchers(POST_ENDPOINT).hasRole("USER")
                 .anyRequest().authenticated().and()
@@ -76,13 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedMethods("*")
-                .allowedOrigins("*")
-                .allowedHeaders("*");
-    }
+
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

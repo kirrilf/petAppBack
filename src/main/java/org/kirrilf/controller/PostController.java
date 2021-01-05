@@ -3,11 +3,16 @@ package org.kirrilf.controller;
 
 import org.apache.log4j.Logger;
 import org.kirrilf.dto.PostDto;
+import org.kirrilf.dto.PostPageDto;
 import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
+import org.kirrilf.service.CommentService;
 import org.kirrilf.service.PostService;
 import org.kirrilf.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +30,15 @@ public class PostController {
 
     private final PostService postService;
     private final UserService userService;
+    private final CommentService commentService;
+    private static final int POSTS_PER_PAGE = 3;
 
     private static final Logger logger = Logger.getLogger(PostController.class);
 
-    public PostController(PostService postService, UserService userService) {
+    public PostController(PostService postService, UserService userService, CommentService commentService) {
         this.postService = postService;
         this.userService = userService;
+        this.commentService = commentService;
     }
 
     @Value("${upload.path}")
@@ -38,14 +46,12 @@ public class PostController {
 
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> allPosts(HttpServletRequest request) {
-        List<Post> posts = postService.getAll();
-        logger.debug("Get all posts");
-        List<PostDto> postsDto = new ArrayList<>();
-        for (Post i : posts) {
-            postsDto.add(PostDto.fromPost(i, postService.getAllFileNamesByPost(i), userService.getUserByRequest(request)));
-        }
-        return new ResponseEntity<>(postsDto, HttpStatus.OK);
+    public ResponseEntity<PostPageDto> allPosts(@PageableDefault(size = POSTS_PER_PAGE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) {
+
+        PostPageDto postPageDto = postService.getAll(pageable, request);
+
+
+        return new ResponseEntity<>(postPageDto, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")
@@ -54,7 +60,7 @@ public class PostController {
         Post post = postService.getOnePost(id);
         return new ResponseEntity<>(PostDto.fromPost(post,
                         postService.getAllFileNamesByPost(post),
-                        userService.getUserByRequest(request)), HttpStatus.OK);
+                        userService.getUserByRequest(request), commentService.getTop3CommentByPost(post)), HttpStatus.OK);
     }
 
 
@@ -67,7 +73,7 @@ public class PostController {
 
         List<Image> images = saveImages(files);
 
-        PostDto result = PostDto.fromPost(postService.add(post, images,request), images,  userService.getUserByRequest(request));
+        PostDto result = PostDto.fromPost(postService.add(post, images,request), images,  userService.getUserByRequest(request), commentService.getTop3CommentByPost(post));
         logger.debug("Create new post: " + post.getText() + "With author " + post.getAuthor());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -94,7 +100,7 @@ public class PostController {
         List<Post> posts = postService.getAllUserPosts(id);
         List<PostDto> postsDto = new ArrayList<>();
         for (Post post : posts) {
-            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post),  userService.getUserByRequest(request)));
+            postsDto.add(PostDto.fromPost(post, postService.getAllFileNamesByPost(post),  userService.getUserByRequest(request), commentService.getTop3CommentByPost(post)));
         }
         logger.debug("Get all post user with id: " + id);
         return new ResponseEntity<>(postsDto, HttpStatus.OK);
@@ -109,7 +115,7 @@ public class PostController {
         Post postUpdate = postService.update(text, id, request);
         PostDto postDto = PostDto.fromPost(postUpdate,
                 postService.getAllFileNamesByPost(postUpdate),
-                userService.getUserByRequest(request));
+                userService.getUserByRequest(request), commentService.getTop3CommentByPost(postUpdate));
         logger.debug("Update post with id: " + id + " and text " + text);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }

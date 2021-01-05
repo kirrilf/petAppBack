@@ -2,6 +2,7 @@ package org.kirrilf.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.kirrilf.model.Comment;
 import org.kirrilf.model.Image;
 import org.kirrilf.model.Post;
 import org.kirrilf.model.User;
@@ -20,6 +21,7 @@ public class PostDto {
     private Boolean meLiked;
     private Long updateDate;
     private List<String> fileNames;
+    private List<CommentDto> firstComments;
 
 
     public Post toPost(){
@@ -29,13 +31,17 @@ public class PostDto {
         return post;
     }
 
-    public static PostDto fromPost(Post post, List<Image> images, User me){
+    public static PostDto fromPost(Post post, List<Image> images, User me, List<Comment> firstComments){
         PostDto postDto = new PostDto();
         postDto.setId(post.getId());
         postDto.setText(post.getText());
         postDto.setAuthorId(post.getAuthor().getId());
         postDto.setCount(post.getLikes().size());
         postDto.setUpdateDate(post.getUpdated().getTime()/1000);
+        postDto.firstComments = new LinkedList<>();
+        for(Comment comment : firstComments){
+            postDto.firstComments.add(CommentDto.fromComment(comment));
+        }
         boolean meLiked = false;
         if(post.getLikes().contains(me)){
             meLiked = true;
@@ -75,6 +81,14 @@ public class PostDto {
         this.authorId = authorId;
     }
 
+
+    public List<CommentDto> getFirstComments() {
+        return firstComments;
+    }
+
+    public void setFirstComments(List<CommentDto> firstComments) {
+        this.firstComments = firstComments;
+    }
 
     public int getCount() {
         return count;
