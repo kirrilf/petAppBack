@@ -1,23 +1,24 @@
 package org.kirrilf.controller;
 
 import org.kirrilf.dto.CommentDto;
+import org.kirrilf.dto.CommentPageDto;
 import org.kirrilf.model.Comment;
 import org.kirrilf.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/comment")
 public class CommentController {
     private final CommentService commentService;
+    private static final int COMMENTS_PER_PAGE = 5;
 
     @Autowired
     public CommentController(CommentService commentService) {
@@ -31,11 +32,9 @@ public class CommentController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<List<CommentDto>> getPostComments(@PathVariable(name = "id") Long postId) {
-        List<CommentDto> commentsDto = new ArrayList<>();
-        List<Comment> comments = commentService.getCommentsByPostId(postId);
-        comments.forEach(comment -> commentsDto.add(CommentDto.fromComment(comment)));
-        return new ResponseEntity<>(commentsDto, HttpStatus.OK);
+    public ResponseEntity<CommentPageDto> getPostComments(@PageableDefault(size = COMMENTS_PER_PAGE, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+                                                          @PathVariable(name = "id") Long postId) {
+        return new ResponseEntity<>(commentService.getCommentsByPostId(pageable, postId), HttpStatus.OK);
     }
 
 

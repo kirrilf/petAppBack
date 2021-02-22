@@ -31,7 +31,7 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
     private final CommentService commentService;
-    private static final int POSTS_PER_PAGE = 3;
+    private static final int POSTS_PER_PAGE = 1;
 
     private static final Logger logger = Logger.getLogger(PostController.class);
 
